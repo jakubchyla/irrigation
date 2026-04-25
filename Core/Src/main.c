@@ -106,21 +106,23 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   sh1106_init(&hi2c1);
-  // uint32_t x;
-  // uint8_t output[100] = {0};
-  // sh1106_Init();
-  // sh1106_Fill(White);
-  // sh1106_SetCursor(10, 10);
-  // sh1106_WriteString("test", Font_6x8, Black);
-  // sh1106_UpdateScreen();
+  uint8_t cycle = 0;
+  uint32_t moisture1, moisture2, moisture3;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // sleep
-    HAL_Delay(10000);
+    cycle = cycle % 5;
+    get_moisture(&moisture1, &moisture2, &moisture3);
+    update_display_moisture(moisture1, moisture2, moisture3);
+    if (cycle == 0)
+    {
+      irrigate();
+    }
+    cycle++;
+    HAL_Delay(1000);
     // HAL_SuspendTick();
     // HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
