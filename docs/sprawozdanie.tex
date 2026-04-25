@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[english,polish]{babel}
+\usepackage{geometry}
+\usepackage{datetime}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{tabularray}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=green,
+    urlcolor=blue
+}
+\pagestyle{fancy}
+\setlength{\headheight}{35pt}
+\fancyhf{}
+\fancyhead[L]{Systemy wbudowane i mikroprocesory}
+\fancyhead[R]{Jakub Chyła\\Projekt\\25.04.2026}
+\renewcommand{\today}{\number\year-\number\month-\number\day}
+
+\AtBeginDocument{\selectlanguage{polish}}
+
+\begin{document}
+
+\section{Opis}
+\begin{flushleft}
+Celem projektu jest stworzenie systemu, który zapewni utrzymanie odpowiedniej wilgotności gleby dla roślin doniczkowych.
+W tym celu wykorzystano pompę do pobierania wody oraz czujnik wilgotności gleby.\\
+\end{flushleft}
+\section{Sprzęt}
+\begin{itemize}
+    \item Płytka deweloperska STM32 L412KB
+    \item Wyświetlacz SH1106 128x64 (I2C)
+    \item Pojemnościowy czujnik wilgotności v1.2
+    \item Przekaźnik 4-kanałowy 12V z wbudowanym optoizolatorem
+    \item Pompa wodna 12V 0.26A
+    \item Zasilacz 12V/1A
+    \item Zasilacz Micro-USB
+\end{itemize}
+\begin{flushleft}
+    Do zasilenia płytki, czujnika wilgotności, ekranu oraz części logicznej układu przekaźnika wykorzystano zasilacz Micro-USB, pompa oraz część mechaniczna przekaźnika
+    zasilane są zasilaczem 12V. Z powodu zbyt małego napięcia wyjściowego na pinach płytki STM32L412KB (3,3V) i żeby zabezpieczyć płytkę, wykorzystano optoizolator wbudowany
+    w układ przekaźnika.\\
+    Przeprowadzono kalibrację czujnika poprzez sprawdzenie podawanych danych w suchym powietrzu oraz po zanurzeniu w wodzie. Wartość dla powietrza wynosiła około 2700,
+    natomiast po zanurzeniu w wodzie około 1450.
+\end{flushleft}
+\begin{center}
+    \begin{tblr}{colspec={cc}, hlines, vlines}
+        STM32 Pin & Urządzenie \\
+        D0 & SH1106 SDA\\
+        D1 & SH1106 SCK\\
+        D5 & Przekaźnik IN1\\
+        A0 & Sensor AOUT\\
+        3V3 & {SH1106 VDD\\Przekaźnik VCC\\Sensor VCC}\\
+        GND & {SH1106 GND\\Sensor GND}\\
+    \end{tblr}
+\end{center}
+\section{Kod}
+\href{https://github.com/jakubchyla/irrigation}{https://github.com/jakubchyla/irrigation}
+\subsection{Wyświetlacz SH1106}
+\begin{flushleft}
+    W celu obsłużenia wyświetlacza SH1106 napisano bibliotekę, która umożliwia inicjalizację oraz wyświetlanie tekstu pod danym adresem na ekranie.
+    Do komunikacji z wyświetlaczem wykorzystywany jest protokół I2C.\\
+    \vspace{7pt}
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Src/sh1106.c}{Github - sh1106.c}\\
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Inc/sh1106.h}{Github - sh1106.h}
+
+\end{flushleft}
+\subsection{Czujnik wilgotności}
+\begin{flushleft}
+    Czujnik zwraca dane w postaci analogowej, do konwersji wykorzystano wbudowany w płytkę ADC, a następnie przetworzono otrzymany wynik
+    na skalę 0-100 na podstawie danych z kalibracji. Wilgotność poniżej, której uruchamiana jest pompa można skonfigurować poprzez
+    zmianę makr SENSOR<numer>\_TARGET\\
+    \vspace{7pt}
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Src/irrigation.c}{Github - irrigation.c}\\
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Inc/irrigation.h}{Github - irrigation.h}
+\end{flushleft}
+
+\subsection{Przekaźnik, pompa}
+\begin{flushleft}
+    Pompa jest uruchamiana poprzez wysłanie sygnału LOW na dany pin (IN1/IN2/IN3/IN4) przekaźnika.
+    Czas pracy pompy można skonfigurować poprzez zmianę makr PUMP<numer>\_TIME.\\
+    \vspace{7pt}
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Src/irrigation.c}{Github - irrigation.c}\\
+    \href{https://github.com/jakubchyla/irrigation/blob/master/Core/Inc/irrigation.h}{Github - irrigation.h}
+\end{flushleft}
+
+\end{document}
